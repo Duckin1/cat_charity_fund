@@ -1,31 +1,27 @@
 from typing import Optional
-from fastapi.encoders import jsonable_encoder
+
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
+
 from app.models import User
 
 
 class CRUDBase:
-
     def __init__(self, model):
         self.model = model
 
-    async def get(
+    async def get_by_attribute(
             self,
-            obj_id: int,
+            attribute_name: str,
+            attribute_value: str,
             session: AsyncSession,
     ):
-        db_obj = await session.execute(
-            select(self.model).where(
-                self.model.id == obj_id
-            )
-        )
+        attr = getattr(self.model, attribute_name)
+        statement = select(self.model).where(attr == attribute_value)
+        db_obj = await session.execute(statement)
         return db_obj.scalars().first()
 
-    async def get_multi(
-            self,
-            session: AsyncSession
-    ):
+    async def get_multi(self, session: AsyncSession):
         db_objs = await session.execute(select(self.model))
         return db_objs.scalars().all()
 
@@ -35,41 +31,11 @@ class CRUDBase:
             session: AsyncSession,
             user: Optional[User] = None
     ):
-        obj_in_data = obj_in.dict()
-        if user is not None:
-            obj_in_data['user_id'] = user.id
-
-        obj_in_data['close_date'] = None
-        db_obj = self.model(**obj_in_data)
+        obj_data = obj_in.dict()
+        if user:
+            obj_data['user_id'] = user.id
+        db_obj = self.model(**obj_data)
         session.add(db_obj)
         await session.commit()
         await session.refresh(db_obj)
-        return db_obj
-
-    async def update(
-            self,
-            db_obj,
-            obj_in,
-            session: AsyncSession,
-            commit_yes: str = 'yes'
-    ):
-        obj_data = jsonable_encoder(db_obj)
-        update_data = obj_in.dict(exclude_unset=True)
-
-        for field in obj_data:
-            if field in update_data:
-                setattr(db_obj, field, update_data[field])
-        session.add(db_obj)
-        if commit_yes == 'yes':
-            await session.commit()
-            await session.refresh(db_obj)
-        return db_obj
-
-    async def remove(
-            self,
-            db_obj,
-            session: AsyncSession,
-    ):
-        await session.delete(db_obj)
-        await session.commit()
         return db_obj

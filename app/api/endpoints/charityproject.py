@@ -42,6 +42,19 @@ async def create_new_charityproject(
         charityproject: CharityprojectCreate,
         session: AsyncSession = Depends(get_async_session),
 ):
+    """
+    Создает новый благотворительный проект.
+
+    Args:
+        charityproject (CharityprojectCreate): Данные нового проекта.
+        session (AsyncSession, optional): Сессия базы данных (по умолчанию создается новая).
+
+    Returns:
+        CharityProjectResponse: Созданный проект.
+
+    Raises:
+        HTTPException: Если произошла ошибка в процессе создания проекта.
+    """
     await check_name_duplicate(charityproject.name, session)
     new_project = await charityproject_crud.create(charityproject, session)
     donations_not_fully_invested = await donation_handler.ProjectDonation.get_donations_not_fully_invested(session)
@@ -86,6 +99,18 @@ async def create_new_charityproject(
 async def get_all_charityprojects(
         session: AsyncSession = Depends(get_async_session),
 ):
+    """
+    Возвращает список всех благотворительных проектов.
+
+    Args:
+        session (AsyncSession, optional): Сессия базы данных (по умолчанию создается новая).
+
+    Returns:
+        List[CharityProjectResponse]: Список всех проектов.
+
+    Raises:
+        HTTPException: Если произошла ошибка при получении проектов.
+    """
     all_charityprojects = await charityproject_crud.get_multi(session)
     return all_charityprojects
 
@@ -100,7 +125,20 @@ async def partially_update_charityproject(
         obj_in: CharityprojectBase,
         session: AsyncSession = Depends(get_async_session),
 ):
-    """Только для суперюзеров."""
+    """
+    Частично обновляет данные благотворительного проекта.
+
+    Args:
+        project_id (int): Идентификатор проекта для обновления.
+        obj_in (CharityprojectBase): Обновляемые данные проекта.
+        session (AsyncSession, optional): Сессия базы данных (по умолчанию создается новая).
+
+    Returns:
+        CharityProjectResponse: Обновленный проект.
+
+    Raises:
+        HTTPException: Если произошла ошибка при обновлении проекта.
+    """
 
     charityproject = await check_charityproject_exists(
         project_id, session
@@ -132,6 +170,19 @@ async def remove_charityproject(
         project_id: int,
         session: AsyncSession = Depends(get_async_session),
 ):
+    """
+    Удаляет благотворительный проект.
+
+    Args:
+        project_id (int): Идентификатор проекта для удаления.
+        session (AsyncSession, optional): Сессия базы данных (по умолчанию создается новая).
+
+    Returns:
+        CharityProjectResponse: Удаленный проект.
+
+    Raises:
+        HTTPException: Если произошла ошибка при удалении проекта.
+    """
 
     """Только для суперюзеров."""
     charityproject = await check_project_invested_amount(project_id, session)

@@ -1,8 +1,12 @@
-from sqlalchemy import Column, Text, Integer, ForeignKey
-from app.core.db import Base
-from app.models import User
+from sqlalchemy import Column, ForeignKey, Integer, Text
+
+from .foundation_base import FoundationBase
 
 
-class Donation(Base):
-    user_id = Column(Integer, ForeignKey(User.id))
+class Donation(FoundationBase):
+    """Модель для пожертвований"""
     comment = Column(Text)
+    user_id = Column(
+        Integer,
+        ForeignKey('user.id',)
+    )
