@@ -145,7 +145,7 @@ async def partially_update_charityproject(
         project_id, session
     )
 
-    if not obj_in.name and not obj_in.description is None and obj_in.full_amount is None:
+    if not obj_in.name and obj_in.description is not None and obj_in.full_amount is None:
         raise HTTPException(
             HTTPStatus.UNPROCESSABLE_ENTITY == 422,
             detail='Не переданы значения полей!'
