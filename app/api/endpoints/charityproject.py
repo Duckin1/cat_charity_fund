@@ -26,6 +26,7 @@ from app.api.validators import (
 from app.core.user import current_superuser
 from typing import List
 from datetime import datetime
+from http import HTTPStatus
 
 from fastapi import HTTPException
 
@@ -144,9 +145,9 @@ async def partially_update_charityproject(
         project_id, session
     )
 
-    if obj_in.name is None and obj_in.description is None and obj_in.full_amount is None:
+    if not obj_in.name and not obj_in.description is None and obj_in.full_amount is None:
         raise HTTPException(
-            status_code=422,
+            HTTPStatus.UNPROCESSABLE_ENTITY == 422,
             detail='Не переданы значения полей!'
         )
     await check_project_unic_name(project_id, session, obj_in.name)

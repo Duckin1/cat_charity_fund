@@ -8,7 +8,7 @@
 -i https://pypi.org/simple
 aiosqlite==0.17.0
 alembic==1.7.7
-anyio==3.6.1
+anyio
 asgiref==3.5.2
 attrs==21.4.0
 bcrypt==3.2.2
